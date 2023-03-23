@@ -1,0 +1,32 @@
+FROM ubuntu:22.04
+
+ARG PYTHON_VERSION="3.8"
+
+ARG USER_NAME="rafjar1188"
+ARG USER_UID="1000"
+ARG USER_GID="1000"
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+ENV TZ=Europe/Warsaw
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y software-properties-common curl wget zip unzip micro && \
+    add-apt-repository "deb http://ppa.launchpad.net/deadsnakes/ppa/ubuntu $(lsb_release -sc) main" && \
+    apt-get update && \
+    apt-get install -y python${PYTHON_VERSION} && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/* && \
+	rm -rf /tmp/* && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python${PYTHON_VERSION} 1
+
+RUN groupadd -g ${USER_GID} ${USER_NAME} && \
+    useradd -m -g ${USER_GID} -u ${USER_UID} ${USER_NAME}
+
+USER ${USER_UID}:${USER_GID}
+
+RUN mkdir /home/${USER_NAME}/e-biznes
+
+WORKDIR /home/${USER_NAME}/e-biznes

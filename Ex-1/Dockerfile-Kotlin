@@ -1,0 +1,47 @@
+FROM ubuntu:22.04
+
+ARG JAVA_VERSION="8.0.302-open"
+ARG KOTLIN_VERSION="1.8.0"
+ARG GRADLE_VERSION="8.0.2"
+
+ARG USER_NAME="rafjar1188"
+ARG USER_UID="1000"
+ARG USER_GID="1000"
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+ENV TZ=Europe/Warsaw
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+RUN apt-get update && \
+    apt-get upgrade --assume-yes && \
+    apt-get install --assume-yes curl zip unzip micro && \
+    apt-get autoremove --assume-yes && \
+    rm -rf /var/lib/apt/lists/* && \
+	rm -rf /tmp/*
+
+RUN groupadd -g ${USER_GID} ${USER_NAME} && \
+    useradd -m -g ${USER_GID} -u ${USER_UID} ${USER_NAME}
+
+USER ${USER_UID}:${USER_GID}
+
+RUN curl -s "https://get.sdkman.io" | bash
+
+RUN bash -c "source ${HOME}/.sdkman/bin/sdkman-init.sh && \
+    sdk install java ${JAVA_VERSION} && \ 
+    sdk install kotlin ${KOTLIN_VERSION} && \
+    sdk install gradle ${GRADLE_VERSION} && \
+    rm -rf ${HOME}/.sdkman/archives/* && \
+    rm -rf ${HOME}/.sdkman/tmp/*"
+
+ENV JAVA_HOME="/home/${USER_NAME}/.sdkman/candidates/java/current"
+ENV KOTLIN_HOME="/home/${USER_NAME}/.sdkman/candidates/kotlin/current"
+ENV GRADLE_HOME="/home/${USER_NAME}/.sdkman/candidates/gradle/current"
+
+ENV PATH="${PATH}:${JAVA_HOME}/bin:${KOTLIN_HOME}/bin:${GRADLE_HOME}/bin"
+
+RUN mkdir /home/${USER_NAME}/e-biznes
+
+WORKDIR /home/${USER_NAME}/e-biznes
+
+CMD [ "gradle", "run" ]

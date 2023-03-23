@@ -1,0 +1,34 @@
+version: '3'
+services:
+  
+  e-biznes-2022-kotlin:
+    container_name: e-biznes-2022-kotlin
+    image: e-biznes-2022-kotlin
+    build:
+      context: .
+      dockerfile: Dockerfile-Kotlin
+    volumes:
+      - ./project:/home/rafjar1188/e-biznes:rw
+
+  e-biznes-2022-python-ppa:
+    container_name: e-biznes-2022-python-ppa
+    image: e-biznes-2022-python-ppa
+    build:
+      context: .
+      dockerfile: Dockerfile-Python-PPA
+    stdin_open: true
+    tty: true
+    profiles:
+      - donotstart
+
+  e-biznes-2022-python-source:
+    container_name: e-biznes-2022-python-source
+    image: e-biznes-2022-python-source
+    build:
+      context: .
+      dockerfile: Dockerfile-Python-Source
+    stdin_open: true
+    tty: true
+    profiles:
+      - donotstart
+      
